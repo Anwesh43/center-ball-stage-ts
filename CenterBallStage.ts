@@ -1,4 +1,5 @@
 const w : number = window.innerWidth, h : number = window.innerHeight
+const nodes : number = 5
 class CenterBallStage {
     canvas : HTMLCanvasElement = document.createElement('canvas')
     context : CanvasRenderingContext2D
@@ -71,5 +72,61 @@ class Animator {
             this.animated = false
             clearInterval(this.interval)
         }
+    }
+}
+
+class CBNode {
+    prev : CBNode
+    next : CBNode
+    state : State = new State()
+    constructor(private i : number) {
+        this.addNeighbor()
+    }
+
+    addNeighbor() {
+        if (this.i < nodes - 1) {
+            this.next = new CBNode(this.i + 1)
+            this.next.prev = this
+        }
+    }
+
+    update(cb : Function) {
+        this.state.update(cb)
+    }
+
+    startUpdating(cb : Function) {
+        this.state.startUpdating(cb)
+    }
+
+    getNext(dir : number, cb : Function) : CBNode {
+        var curr : CBNode = this.prev
+        if (dir == 1) {
+            curr = this.next
+        }
+        if (curr) {
+            return curr
+        }
+        cb()
+        return this
+    }
+
+    draw(context : CanvasRenderingContext2D) {
+        context.fillStyle = '#388E3C'
+        const gap : number = h / (nodes + 1)
+        const index1 : number = this.i % 2
+        const index2 : number = (this.i + 1) % 2
+        const r : number = gap / 4
+        const x : number = (w -r) * index2 + r * index1
+        const y : number = this.i * gap + gap/2 + r
+        const sc1 : number = Math.min(0.5, this.state.scale) * 2
+        const sc2 : number = Math.min(0.5, Math.max(this.state.scale - 0.5, 0)) * 2
+        const newX = x + (w/2 - x) * sc1
+        const newY = y  + (h - y) * sc2
+        context.save()
+        context.translate(newX, newY)
+        context.beginPath()
+        context.arc(0, 0, r, 0, 2 * Math.PI)
+        context.fill()
+        context.restore()
     }
 }
