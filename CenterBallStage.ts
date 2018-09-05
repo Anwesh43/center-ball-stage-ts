@@ -3,7 +3,8 @@ const nodes : number = 5
 class CenterBallStage {
     canvas : HTMLCanvasElement = document.createElement('canvas')
     context : CanvasRenderingContext2D
-
+    centerBall : LinkedCenterBall = new LinkedCenterBall()
+    animator : Animator = new Animator()
     constructor() {
         this.initCanvas()
     }
@@ -18,11 +19,19 @@ class CenterBallStage {
     render() {
         this.context.fillStyle = '#212121'
         this.context.fillRect(0, 0, w, h)
+        this.centerBall.draw(this.context)
     }
 
     handleTap() {
         this.canvas.onmousedown = () => {
-
+            this.centerBall.startUpdating(() => {
+                this.animator.start(() => {
+                    this.render()
+                    this.centerBall.update(() =>{
+                        this.animator.stop()
+                    })
+                })
+            })
         }
     }
 
@@ -151,6 +160,4 @@ class LinkedCenterBall {
     startUpdating(cb : Function) {
         this.curr.startUpdating(cb)
     }
-
-
 }
