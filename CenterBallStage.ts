@@ -29,6 +29,7 @@ class CenterBallStage {
                     this.render()
                     this.centerBall.update(() =>{
                         this.animator.stop()
+                        this.render()
                     })
                 })
             })
@@ -48,7 +49,7 @@ class State {
     prevScale : number = 0
 
     update(cb : Function) {
-        this.scale += 0.1 * this.dir
+        this.scale += 0.05 * this.dir
         if (Math.abs(this.scale - this.prevScale) > 1) {
             this.scale = this.prevScale + this.dir
             this.dir = 0
@@ -129,14 +130,17 @@ class CBNode {
         const y : number = this.i * gap + gap/2 + r
         const sc1 : number = Math.min(0.5, this.state.scale) * 2
         const sc2 : number = Math.min(0.5, Math.max(this.state.scale - 0.5, 0)) * 2
-        const newX = x + (w/2 - x) * sc1
-        const newY = y  + (h - y) * sc2
+        const newX = x + (w / 2 - x) * sc1
+        const newY = y  + (h + r - y) * sc2
         context.save()
         context.translate(newX, newY)
         context.beginPath()
         context.arc(0, 0, r, 0, 2 * Math.PI)
         context.fill()
         context.restore()
+        if (this.next) {
+            this.next.draw(context)
+        }
     }
 }
 
